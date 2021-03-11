@@ -78,17 +78,10 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
+    <CudaCompile Include="JuliaSetGenerator.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Image.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="MainFile_Contents.txt" />
-    <Text Include="Mandelbrot_AndFRee.txt" />
-    <Text Include="MandelbrotGenerator.txt" />
-    <Text Include="CudaMatAdd.txt" />
-    <Text Include="DynamicallyAllocatedMemoryDeviceWrite.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Image.h" />
