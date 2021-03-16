@@ -4,6 +4,8 @@
 #include <thrust/complex.h>
 #include <fstream>
 #include <chrono>
+#include <gl/gl.h>
+#include <gl/glu.h>
 
 template <typename T = uint8_t>  
 struct Contiguous2DArray 
@@ -187,6 +189,7 @@ void writeImage(Contiguous2DArray<T>& arr2D, std::string additionalTitle = "") {
 *MAIN*
 *****/
 int main() {
+
 	Contiguous2DArray<uint8_t> host;
 	uint8_t* deviceMatrix = NULL;
 	size_t devicePitch;
@@ -211,6 +214,7 @@ int main() {
 		gpuGenerateMandelbrot << <blocks, threads >> > (deviceMatrix, devicePitch, size, size, startingPoint, pwr);
 		gpuErrCheck(cudaDeviceSynchronize(),"Synchronization");
 		gpuErrCheck(cudaMemcpy2D(host.linear, size * sizeof(uint8_t), deviceMatrix, devicePitch, size * sizeof(uint8_t), size, cudaMemcpyDeviceToHost),"Device to Host Copy");
+		gpuErrCheck(cudaFree(deviceMatrix),"Free Memory");
 	}
 	else {
 		cpuGenerateMandelbrot(host.matrix, size, size, startingPoint ,pwr);
@@ -223,8 +227,10 @@ int main() {
 		int seconds = microseconds / pow(10, 6);
 		std::cout << seconds << " seconds have elapsed. \n";
 	}
-	cudaFree(deviceMatrix);
 	deallocateContiguous2DArray(host);
+	std::cout << "Type anything and press <<Enter>> to exit.";
+	std::string confirm;
+	std::cin >> confirm;
 	std::cout << "End.\n";
 	return 0;
 }
