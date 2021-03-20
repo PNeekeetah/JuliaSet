@@ -1,0 +1,60 @@
+#include <iostream>
+#include "CImg.h"
+#include <random>
+#include <chrono>
+#include <thread>
+#include <cmath>
+using namespace cimg_library;
+
+#define SIZE 1024/4
+int main() {
+    unsigned char *buff = (unsigned char*)malloc(SIZE*SIZE*sizeof(unsigned char));
+
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            if ((i > SIZE/4 && i < 3*SIZE/4) && (j > SIZE/4 && j < 3*SIZE/4)) {
+                buff[i * SIZE + j] = 255;
+            }
+            else {
+                buff[i * SIZE + j] = 1;
+            }
+        }
+    }
+    int y = 0;
+    int x = 0;
+    const int border[4] = { 0,0,SIZE,SIZE };
+    CImg<unsigned char> img = CImg<unsigned char>(buff, SIZE, SIZE, 1, 1);
+    CImgDisplay disp(img, "Epilepsy");
+    uint16_t rotation = 0;
+    uint8_t color[1] = { 125 };
+    while(!disp.is_closed()){
+        rotation = (rotation + 1) % 1;
+        if (disp.button() && 
+            disp.mouse_x() >= border[0]  && 
+            disp.mouse_y() >= border[1]  && 
+            disp.mouse_x() < border[2]   && 
+            disp.mouse_y() < border[3]) {
+            x = disp.mouse_x();
+            y = disp.mouse_y();
+            //printf("x : %d, y : %d \n", x, y);
+            printf("x : %f, y : %f \n", float(x) * 4 / (SIZE - 1) - 2, float(y) * 4/(SIZE - 1) - 2);
+        }
+        disp.display(img.draw_circle(x, y, 9, color).rotate(rotation)).wait(20);
+
+
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                buff[i * SIZE + j] = (buff[i*SIZE + j]*13) % 256;
+            }
+        }
+        img = CImg<unsigned char>(buff, SIZE, SIZE, 1, 1);
+        
+
+    }
+    printf("Freeing buffer \n");
+    free(buff);
+    printf("Buffer freed.");
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+    return 0;
+}

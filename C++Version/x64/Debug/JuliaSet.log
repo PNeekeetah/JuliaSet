@@ -1,6 +1,24 @@
-﻿  Compiling CUDA source file kernel.cu...
+﻿  Compiling CUDA source file JuliaSetGenerator.cu...
   
-  C:\Users\Nikita\Desktop\HSDeckTrackerCode\JuliaSet\Julia_Set_CUDA\JuliaSet>"F:\CUDA\CudaDEVELOPMENT\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.24.28314\bin\HostX86\x64" -x cu   -IF:\CUDA\CudaDEVELOPMENT\include -IF:\CUDA\CudaDEVELOPMENT\include  -G   --keep-dir x64\Debug  -maxrregcount=0  --machine 64 --compile -cudart static  -g  -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc142.pdb /FS /Zi /RTC1 /MDd " -o x64\Debug\kernel.cu.obj "C:\Users\Nikita\Desktop\HSDeckTrackerCode\JuliaSet\Julia_Set_CUDA\JuliaSet\kernel.cu" 
-  kernel.cu
-C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/kernel.cu(223): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  C:\Users\Nikita\Desktop\HSDeckTrackerCode\JuliaSet\Julia_Set_CUDA\JuliaSet>"F:\CUDA\CudaDEVELOPMENT\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.24.28314\bin\HostX86\x64" -x cu   -IF:\CUDA\CudaDEVELOPMENT\include -IF:\CUDA\CudaDEVELOPMENT\include  -G   --keep-dir x64\Debug  -maxrregcount=0  --machine 64 --compile -cudart static  -g  -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc142.pdb /FS /Zi /RTC1 /MDd " -o x64\Debug\JuliaSetGenerator.cu.obj "C:\Users\Nikita\Desktop\HSDeckTrackerCode\JuliaSet\Julia_Set_CUDA\JuliaSet\JuliaSetGenerator.cu" 
+C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(243): warning : type qualifier on return type is meaningless
+  
+C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(266): warning : missing return statement at end of non-void function "parseBool"
+  
+C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(271): warning : type qualifier on return type is meaningless
+  
+C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(243): warning : type qualifier on return type is meaningless
+  
+C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(266): warning : missing return statement at end of non-void function "parseBool"
+  
+C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(271): warning : type qualifier on return type is meaningless
+  
+  JuliaSetGenerator.cu
+C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(383): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(383): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(383): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(383): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(225): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(359): note: see reference to function template instantiation 'void generateImage<unsigned char>(Contiguous2DArray<unsigned char> &,thrust::complex<float>,int,bool,bool,bool,std::string,int,int,int)' being compiled
+C:\Users\Nikita\Desktop\HSDeckTrackerCode\JuliaSet\Julia_Set_CUDA\JuliaSet\JuliaSetGenerator.cu(266): warning C4715: 'parseBool': not all control paths return a value
   JuliaSet.vcxproj -> C:\Users\Nikita\Desktop\HSDeckTrackerCode\JuliaSet\Julia_Set_CUDA\JuliaSet\x64\Debug\JuliaSet.exe
