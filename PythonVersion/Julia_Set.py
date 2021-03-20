@@ -55,7 +55,7 @@ def generate_multibrot(per_axis : int, power : int, start : complex = None):
     if (start != None):
         plt.title("Multibrot set for z_(n+1) = z_n^{} + {}".format(power,start))
     else:
-        plt.title("Multibrot set for z_(n+1) = z_n^{} + c".format(power))
+        plt.title("Multibrot set for z_(n+1) = z_n^{} + 0".format(power))
         
 def generate_negatve_multibrot(per_axis : int, power : int,iters : int,
                                start : complex = None, debug : bool = False):
@@ -85,29 +85,33 @@ def generate_negatve_multibrot(per_axis : int, power : int,iters : int,
             while (iterations > 0) and not (recurrence in seen):
                 seen[recurrence] = 1
                 recurrence = pow(recurrence,power) + candidate
-                # If either real or complex becomes NaN, both end up becoming 
-                # Nan
-                if math.isnan(recurrence):
+                # If it ends up being 0, next iteration turns to NaN 
+                if (recurrence in seen) or (recurrence == 0 + 0j):
                     break
                 iterations -= 1
                 
-            
             if (debug):
                 arr_iters.append(iters - iterations)
             
             x_coords.append(coord_x)
             y_coords.append(coord_y)
-            z_coords.append(iterations)
+            if (start != None):
+                z_coords.append(pow(iterations,4))    
+            else:
+                z_coords.append(iters - iterations)
     
     plt.figure(figsize=(10,10))
-    plt.scatter(x_coords ,y_coords, c = z_coords, cmap = "PiYG")
+    if (start != None):
+        plt.scatter(x_coords ,y_coords, c = z_coords, cmap = "PiYG")
+    else:
+        plt.scatter(x_coords ,y_coords, c = z_coords, cmap = "hsv")
     plt.box(False)
     plt.axis('off')
     
     if (start != None):
         plt.title("Negative Multibrot set for z_(n+1) = z_n^{} + {}".format(power,start))
     else:
-        plt.title("Negative Multibrot set for z_(n+1) = z_n^{} + c".format(power))
+        plt.title("Negative Multibrot set for z_(n+1) = z_n^{} + 0".format(power))
     
     if debug:
         return arr_iters
@@ -140,8 +144,8 @@ def plot_iterations_distribution(i : int, size : int):
     plt.plot(x_axis,y_axis)
 
 
-generate_negatve_multibrot(1000,-2,500,-1, False)
-#
+generate_negatve_multibrot(500,-2,2000, None, False)
+
 #polar_theta = []
 # polar_r =[]
 # for x,y in zip(x_coords,y_coords):
