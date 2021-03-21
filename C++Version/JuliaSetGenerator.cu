@@ -6,7 +6,7 @@
 #include <chrono>
 #include "CImg.h"
 
-#define RADIUS_CONSTANT 0.0078125f*1.5f
+#define RADIUS_CONSTANT 0.0078125f*1.5f // Chosen such that dot and text scale up with window size
 #define FONT_CONSTANT 0.015625f*1.5f
 
 template <typename T = uint8_t>  
@@ -115,11 +115,19 @@ void gpuErrCheck(cudaError state, std::string message) {
 ***************************/
 template<typename T>
 __global__
-void gpuGenerateMandelbrot(T* deviceMatrix, size_t pitch, int size_x, int size_y, thrust::complex<float> j, int power = 2, int iter = 255) {
+void gpuGenerateMandelbrot(T* deviceMatrix, size_t pitch, int size_x, int size_y, thrust::complex<float> j, int power = 2, int iter = 255, bool color = false) {
 	int dx = blockDim.x * blockIdx.x + threadIdx.x;
 	int dy = blockDim.y * blockIdx.y + threadIdx.y;
+
 	if ((dx < size_x) && (dy < size_y)) {
-		T* row = (T*)((char*)deviceMatrix + pitch * dy);
+		T* row1 = (T*)((char*)deviceMatrix + pitch * dy);
+		T* row2 = row1;
+		T* row3 = row1;
+		if (color) {
+			row1 = (T*)((char*)deviceMatrix + pitch * dy + 1 * size_x * size_y);
+			row2 = (T*)((char*)deviceMatrix + pitch * dy + 0 * size_x * size_y);
+			row3 = (T*)((char*)deviceMatrix + pitch * dy + 2 * size_x * size_y);
+		}
 		T iterations = T(iter);
 		float x = float(dx) * 4.0f / (float(size_x) - 1.0f) - 2.0f;						// x and y are put in range [-2,2]
 		float y = float(dy) * 4.0f / (float(size_y) - 1.0f) - 2.0f;
@@ -138,7 +146,11 @@ void gpuGenerateMandelbrot(T* deviceMatrix, size_t pitch, int size_x, int size_y
 				iterations = 0;
 			}
 		}
-		row[dx] = iterations;
+		row1[dx] = iterations;
+		if (color){
+			row2[dx] = T(logf(iterations));
+			row3[dx] = T((iterations*iterations)%256);
+		}
 	}
 }
 
@@ -169,6 +181,45 @@ void cpuGenerateMandelbrot(T **hostMatrix,int size_x, int size_y, thrust::comple
 				}
 			}
 			hostMatrix[dy][dx] = iterations;
+		}
+	}
+}
+
+/*******************************
+*CPU COLOR MANDELBROT GENERATOR*
+*******************************/
+template <typename T>
+void generateColorMandelbrot(cimg_library::CImg<T>& image, thrust::complex<float> j, int power) {
+	int img_w = image.width();
+	int img_h = image.height();
+	int img_c = image.spectrum();
+	for (int dy = 0; dy < img_h; dy++) {
+		for (int dx = 0; dx < img_w; dx++) {
+			float x = changeRange(dx, 0, img_w, -2, 2);
+			float y = changeRange(dy, 0, img_h, -2, 2);
+			thrust::complex<float> m = thrust::complex<float>(x, y);
+			thrust::complex<float> z = thrust::complex<float>(0.0f, 0.0f);
+			thrust::complex<float> l_z = z;
+			if (j != thrust::complex<float>(2.0f, 2.0f)) {									// Asking for a Julia Set
+				z = m;
+				m = j;
+			}
+			T iterations = T(255);
+			while (iterations > 0 && thrust::abs(z) <= 4) {
+				l_z = z;
+				z = thrust::pow(z, power) + m;
+				iterations -= 1;
+			}
+			if (iterations < 50) {
+				image[0 * img_h * img_w + (dx + dy * img_h)] = T(255 - iterations);            // R
+				image[2 * img_h * img_w + (dx + dy * img_h)] = T(255 - iterations);            // G
+				image[1 * img_h * img_w + (dx + dy * img_h)] = T(255 - iterations);			  // B
+			}
+			else {
+				image[0 * img_h * img_w + (dx + dy * img_h)] = T(iterations);						// R
+				image[2 * img_h * img_w + (dx + dy * img_h)] = T(log(iterations));				// G
+				image[1 * img_h * img_w + (dx + dy * img_h)] = T(iterations * iterations % 256);  // B
+			}
 		}
 	}
 }
@@ -228,6 +279,41 @@ void generateImage(Contiguous2DArray<T> &mainBuff, thrust::complex<float> startP
 }
 
 /*********************
+*GENERATE COLOR IMAGE*
+*********************/
+template <typename T>
+void generateColorImage(cimg_library::CImg<T>& image, thrust::complex<float> startPoint, bool time = true, bool useGPU = true, bool saveFile = false, std::string additionalTitle = "", int threadsNo = 8, int power = 2, T iterations = 255) {
+	uint8_t* deviceMatrix = NULL;
+	size_t devicePitch;
+	int img_w = image.width();
+	int img_h = image.height();
+	int img_c = image.spectrum();
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	if (useGPU) {
+		gpuErrCheck(cudaMallocPitch(&deviceMatrix, &devicePitch, img_w * sizeof(T), img_c * img_h), "Allocate Pitch");
+		gpuErrCheck(cudaMemcpy2D(deviceMatrix, devicePitch, image.data(), img_w * sizeof(T), img_w * sizeof(T), img_c * img_h, cudaMemcpyHostToDevice), "Host to Device Copy");
+		dim3 threads = dim3(threadsNo, threadsNo);
+		dim3 blocks = dim3(img_w  / threads.x, img_h / threads.y);
+
+		gpuGenerateMandelbrot << <blocks, threads >> > (deviceMatrix, devicePitch, img_w, img_h , startPoint, power, iterations, true);
+		gpuErrCheck(cudaDeviceSynchronize(), "Synchronization");
+		gpuErrCheck(cudaMemcpy2D(image.data(), img_w * sizeof(T), deviceMatrix, devicePitch,  img_w * sizeof(T), img_c * img_h, cudaMemcpyDeviceToHost), "Device to Host Copy");
+		gpuErrCheck(cudaFree(deviceMatrix), "Free GPU Memory");
+	}
+	else {
+		generateColorMandelbrot(image, startPoint, power);
+	}
+	if (time) {
+		auto elapsed = std::chrono::high_resolution_clock::now() - start;
+		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+		int seconds = microseconds / pow(10, 6);
+		std::cout << seconds << " seconds have elapsed. \n";
+	}
+}
+
+/*********************
 *RANGE TRANSFORMATION*
 *********************/
 float changeRange(int point, int old_range_min, int old_range_max, int new_range_min, int new_range_max) {
@@ -240,7 +326,7 @@ float changeRange(int point, int old_range_min, int old_range_max, int new_range
 /***************
 *BOOLEAN PARSER*
 ***************/
-volatile bool parseBool(std::string message) {
+bool parseBool(std::string message) {
 	std::cout << message << "\n";
 	int v = 0;
 	std::string value;
@@ -263,12 +349,13 @@ volatile bool parseBool(std::string message) {
 			printf("%s is not a number. You must enter 0 for 'false' or 1 for 'true'! \n",value.data());
 		}
 	}
+	// THERE IS A RETURN ^
 }
 
 /***************
 *INTEGER PARSER*
 ***************/
-volatile int parseInt(std::string message, int lower_limit, int upper_limit) {
+int parseInt(std::string message, int lower_limit, int upper_limit) {
 	std::cout << message << "\n";
 	int v = 0;
 	std::string value;
@@ -306,6 +393,7 @@ int main() {
 	volatile bool animate = false;
 	volatile bool expertMode = false;
 	volatile bool defaultGPU = true;
+	volatile int channels = 3;
 	expertMode = parseBool("Would you like to use expert mode?\n"
 						   "Expert mode gives you access to threads, image size, animations and more!\n"
 						   "You can also choose to run the program with the defaults (recommended for first run).\n"
@@ -321,7 +409,7 @@ int main() {
 					   "For a power of 3, you get 2-fold symmetry in your guide image and 3-fold symmetry \n"
 					   "in the set you generate. Generally, you get (n-1)-fold symmetry for the guide image and \n"
 					   "n-fold symmetry in the generated sets.\n"
-					   "Lower limit is -20 and upper limit is 20.",-20,20);
+					   "Lower limit is -20 and upper limit is 20.",2,20);
 		time = parseBool("\nTells you additional infomation about timing.\n"
 						 "Based on the time it takes, you can select a size runnable by your computer.\n"
 						 "Enter 0 for FALSE and 1 for TRUE, then hit ENTER to proceed.");
@@ -356,16 +444,19 @@ int main() {
 	int x = size/2;
 	thrust::complex<float> startingPoint = thrust::complex<float>(0.5f, -0.01f);
 	std::string additionalTitle = "";
-	generateImage(mandelbrot, thrust::complex<float>(2.0f, 2.0f), size, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
-	generateImage(julia, startingPoint, size, time, useGPU, saveFile, additionalTitle, ts, pwr, uint8_t(255));
+	//generateImage(mandelbrot, thrust::complex<float>(2.0f, 2.0f), size, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+	
+	//generateImage(julia, startingPoint, size, time, useGPU, saveFile, additionalTitle, ts, pwr, uint8_t(255));
 	
 	
-	cimg_library::CImg<uint8_t> mb_img = cimg_library::CImg<uint8_t>(mandelbrot.linear, size, size, 1, 1);
-	cimg_library::CImg<uint8_t> jl_img = cimg_library::CImg<uint8_t>(julia.linear, size, size, 1, 1);
-	cimg_library::CImgDisplay mb_disp (mb_img, "Mandelbrot Fractal");
-	cimg_library::CImgDisplay jl_disp(jl_img, "Corresponding Julia Fractal");
-	mb_disp.display(mb_img).resize(1024, 1024);
-	jl_disp.display(jl_img).resize(1024, 1024);
+	cimg_library::CImg<uint8_t> mandelbrot_img = cimg_library::CImg<uint8_t>(size, size, 1, channels, uint8_t(125));
+	generateColorImage(mandelbrot_img, thrust::complex<float>(2.0f, 2.0f), time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+	cimg_library::CImg<uint8_t> julia_img = cimg_library::CImg<uint8_t>(size, size, 1, channels, uint8_t(125));
+	generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+	cimg_library::CImgDisplay mb_disp (mandelbrot_img, "Mandelbrot Fractal");
+	cimg_library::CImgDisplay jl_disp(julia_img, "Corresponding Julia Fractal");
+	mb_disp.display(mandelbrot_img).resize(1024, 1024);
+	jl_disp.display(julia_img).resize(1024, 1024);
 	uint8_t circle_color[1] = { 125 };
 	uint8_t text_color[1] = { 0 };
 	uint8_t line_color[1] = { 0 };
@@ -379,7 +470,7 @@ int main() {
 			y = mb_disp.mouse_y()* size / mb_disp.height();
 			//printf("x : %d, y : %d \n", x, y);
 		}
-		mb_img = cimg_library::CImg<uint8_t>(mandelbrot.linear, size, size, 1, 1);
+		cimg_library::CImg<uint8_t> mb_img = mandelbrot_img;
 		mb_disp.display(mb_img.draw_circle(x, y, circle_radius, circle_color).
 			draw_text(2, 2, "x : %f | y : %f", text_color, 0, 0.7f, font_size, changeRange(x,0,size,-2,2),changeRange(y,0,size,-2,2)).
 			draw_text(2,2 + intertext_space, "Drawing Julia Set for c = %f + %f*i",text_color,0,0.7f, font_size, changeRange(x, 0, size, -2, 2), changeRange(y, 0, size, -2, 2)).
@@ -394,29 +485,25 @@ int main() {
 			border[3] = mb_disp.height();
 		}
 		if (jl_disp.is_resized()) {
-			jl_disp.resize().display(jl_img);
+			jl_disp.resize().display(julia_img);
 		}
 		startingPoint = thrust::complex<float>((float(x) * 4 / (size - 1) - 2), (float(y) * 4 / (size - 1) - 2));
 		if (jl_disp.key() == cimg_library::cimg::keyENTER) {
 			//printf("Pressed ENTER \n");
 			if (animate) {
 				for (int iterations = 0; iterations < 255; iterations++) {
-					deallocateContiguous2DArray(julia);
-					generateImage(julia, startingPoint, size, time, useGPU, saveFile, additionalTitle, ts, pwr, uint8_t(iterations));
-					jl_img = cimg_library::CImg<uint8_t>(julia.linear, size, size, 1, 1);
-					jl_disp.display(jl_img).wait(10);
+					generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+					jl_disp.display(julia_img).wait(10);
 				}
 			}
 			else {
-				deallocateContiguous2DArray(julia);
-				generateImage(julia, startingPoint, size, time, useGPU, saveFile, additionalTitle, ts, pwr, 255);
-				jl_img = cimg_library::CImg<uint8_t>(julia.linear, size, size, 1, 1);
-				jl_disp.display(jl_img).wait(10);
+				generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+				jl_disp.display(julia_img).wait(10);
 			}
 		}
 		
 	}
-	deallocateContiguous2DArray(mandelbrot);
+	//deallocateContiguous2DArray(mandelbrot);
 
 	
 	std::cout << "End.\n";

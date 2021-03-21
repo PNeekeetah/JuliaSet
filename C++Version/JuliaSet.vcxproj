@@ -55,6 +55,7 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <GPUDebugInfo>Yes (-G0)</GPUDebugInfo>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -78,7 +79,11 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="JuliaSetGenerator.cu" />
+    <CudaCompile Include="JuliaSetGenerator.cu">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <GPUDebugInfo Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GPUDebugInfo>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Image.cpp" />

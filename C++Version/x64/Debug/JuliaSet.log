@@ -1,24 +1,27 @@
 ﻿  Compiling CUDA source file JuliaSetGenerator.cu...
   
-  C:\Users\Nikita\Desktop\HSDeckTrackerCode\JuliaSet\Julia_Set_CUDA\JuliaSet>"F:\CUDA\CudaDEVELOPMENT\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.24.28314\bin\HostX86\x64" -x cu   -IF:\CUDA\CudaDEVELOPMENT\include -IF:\CUDA\CudaDEVELOPMENT\include  -G   --keep-dir x64\Debug  -maxrregcount=0  --machine 64 --compile -cudart static  -g  -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc142.pdb /FS /Zi /RTC1 /MDd " -o x64\Debug\JuliaSetGenerator.cu.obj "C:\Users\Nikita\Desktop\HSDeckTrackerCode\JuliaSet\Julia_Set_CUDA\JuliaSet\JuliaSetGenerator.cu" 
-C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(243): warning : type qualifier on return type is meaningless
+  C:\Users\Nikita\Desktop\GeneralProgramming\JuliaAndMandelbrotGenerator\C++Version>"F:\CUDA\CudaDEVELOPMENT\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.24.28314\bin\HostX86\x64" -x cu   -IF:\CUDA\CudaDEVELOPMENT\include -IF:\CUDA\CudaDEVELOPMENT\include  -G   --keep-dir x64\Debug  -maxrregcount=0  --machine 64 --compile -cudart static  -g  -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc142.pdb /FS /Zi /RTC1 /MDd " -o x64\Debug\JuliaSetGenerator.cu.obj "C:\Users\Nikita\Desktop\GeneralProgramming\JuliaAndMandelbrotGenerator\C++Version\JuliaSetGenerator.cu" 
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(353): warning : missing return statement at end of non-void function "parseBool"
   
-C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(266): warning : missing return statement at end of non-void function "parseBool"
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(202): warning : variable "l_z" was set but never used
+            detected during:
+              instantiation of "void generateColorMandelbrot(cimg_library::CImg<T> &, thrust::complex<float>, int) [with T=unsigned char]" 
+  (306): here
+              instantiation of "void generateColorImage(cimg_library::CImg<T> &, thrust::complex<float>, __nv_bool, __nv_bool, __nv_bool, std::string, int, int, T) [with T=unsigned char]" 
+  (453): here
   
-C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(271): warning : type qualifier on return type is meaningless
-  
-C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(243): warning : type qualifier on return type is meaningless
-  
-C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(266): warning : missing return statement at end of non-void function "parseBool"
-  
-C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(271): warning : type qualifier on return type is meaningless
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(353): warning : missing return statement at end of non-void function "parseBool"
   
   JuliaSetGenerator.cu
-C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(383): warning C4305: 'argument': truncation from 'double' to 'const float'
-C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(383): warning C4305: 'argument': truncation from 'double' to 'const float'
-C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(383): warning C4305: 'argument': truncation from 'double' to 'const float'
-C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(383): warning C4305: 'argument': truncation from 'double' to 'const float'
-C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(225): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-  C:/Users/Nikita/Desktop/HSDeckTrackerCode/JuliaSet/Julia_Set_CUDA/JuliaSet/JuliaSetGenerator.cu(359): note: see reference to function template instantiation 'void generateImage<unsigned char>(Contiguous2DArray<unsigned char> &,thrust::complex<float>,int,bool,bool,bool,std::string,int,int,int)' being compiled
-C:\Users\Nikita\Desktop\HSDeckTrackerCode\JuliaSet\Julia_Set_CUDA\JuliaSet\JuliaSetGenerator.cu(266): warning C4715: 'parseBool': not all control paths return a value
-  JuliaSet.vcxproj -> C:\Users\Nikita\Desktop\HSDeckTrackerCode\JuliaSet\Julia_Set_CUDA\JuliaSet\x64\Debug\JuliaSet.exe
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(474): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(474): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(474): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(474): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(311): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(453): note: see reference to function template instantiation 'void generateColorImage<unsigned char>(cimg_library::CImg<unsigned char> &,thrust::complex<float>,bool,bool,bool,std::string,int,int,T)' being compiled
+          with
+          [
+              T=unsigned char
+          ]
+C:\Users\Nikita\Desktop\GeneralProgramming\JuliaAndMandelbrotGenerator\C++Version\JuliaSetGenerator.cu(353): warning C4715: 'parseBool': not all control paths return a value
+  JuliaSet.vcxproj -> C:\Users\Nikita\Desktop\GeneralProgramming\JuliaAndMandelbrotGenerator\C++Version\x64\Debug\JuliaSet.exe
