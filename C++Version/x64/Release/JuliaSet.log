@@ -1,1 +1,35 @@
-﻿  JuliaSet.vcxproj -> C:\Users\Nikita\Desktop\GeneralProgramming\JuliaAndMandelbrotGenerator\C++Version\x64\Release\JuliaSet.exe
+﻿  Compiling CUDA source file JuliaSetGenerator.cu...
+  
+  C:\Users\Nikita\Desktop\GeneralProgramming\JuliaAndMandelbrotGenerator\C++Version>"F:\CUDA\CudaDEVELOPMENT\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.24.28314\bin\HostX86\x64" -x cu   -IF:\CUDA\CudaDEVELOPMENT\include -IF:\CUDA\CudaDEVELOPMENT\include     --keep-dir x64\Release  -maxrregcount=0  --machine 64 --compile -cudart static    -DWIN32 -DWIN64 -DNDEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Fdx64\Release\vc142.pdb /FS   /MD " -o x64\Release\JuliaSetGenerator.cu.obj "C:\Users\Nikita\Desktop\GeneralProgramming\JuliaAndMandelbrotGenerator\C++Version\JuliaSetGenerator.cu" 
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(353): warning : missing return statement at end of non-void function "parseBool"
+  
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(202): warning : variable "l_z" was set but never used
+            detected during:
+              instantiation of "void generateColorMandelbrot(cimg_library::CImg<T> &, thrust::complex<float>, int) [with T=unsigned char]" 
+  (306): here
+              instantiation of "void generateColorImage(cimg_library::CImg<T> &, thrust::complex<float>, __nv_bool, __nv_bool, __nv_bool, std::string, int, int, T, __nv_bool) [with T=unsigned char]" 
+  (462): here
+  
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(353): warning : missing return statement at end of non-void function "parseBool"
+  
+  JuliaSetGenerator.cu
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(490): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(490): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(490): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(490): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(311): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(462): note: see reference to function template instantiation 'void generateColorImage<unsigned char>(cimg_library::CImg<unsigned char> &,thrust::complex<float>,bool,bool,bool,std::string,int,int,T,bool)' being compiled
+          with
+          [
+              T=unsigned char
+          ]
+C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(276): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  C:/Users/Nikita/Desktop/GeneralProgramming/JuliaAndMandelbrotGenerator/C++Version/JuliaSetGenerator.cu(466): note: see reference to function template instantiation 'void generateImage<unsigned char>(Contiguous2DArray<unsigned char> &,thrust::complex<float>,int,bool,bool,bool,std::string,int,int,int)' being compiled
+C:\Users\Nikita\Desktop\GeneralProgramming\JuliaAndMandelbrotGenerator\C++Version\JuliaSetGenerator.cu(353): warning C4715: 'parseBool': not all control paths return a value
+     Creating library C:\Users\Nikita\Desktop\GeneralProgramming\JuliaAndMandelbrotGenerator\C++Version\x64\Release\JuliaSet.lib and object C:\Users\Nikita\Desktop\GeneralProgramming\JuliaAndMandelbrotGenerator\C++Version\x64\Release\JuliaSet.exp
+  Generating code
+  0 of 9 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  JuliaSet.vcxproj -> C:\Users\Nikita\Desktop\GeneralProgramming\JuliaAndMandelbrotGenerator\C++Version\x64\Release\JuliaSet.exe

@@ -124,9 +124,9 @@ void gpuGenerateMandelbrot(T* deviceMatrix, size_t pitch, int size_x, int size_y
 		T* row2 = row1;
 		T* row3 = row1;
 		if (color) {
-			row1 = (T*)((char*)deviceMatrix + pitch * dy + 1 * size_x * pitch);
+			row1 = (T*)((char*)deviceMatrix + pitch * dy + 2 * size_x * pitch);
 			row2 = (T*)((char*)deviceMatrix + pitch * dy + 0 * size_x * pitch);
-			row3 = (T*)((char*)deviceMatrix + pitch * dy + 2 * size_x * pitch);
+			row3 = (T*)((char*)deviceMatrix + pitch * dy + 1 * size_x * pitch);
 		}
 		T iterations = T(iter);
 		float x = float(dx) * 4.0f / (float(size_x) - 1.0f) - 2.0f;						// x and y are put in range [-2,2]
@@ -405,7 +405,7 @@ int main() {
 						  "Enter 0 for FALSE and 1 for TRUE, then hit ENTER to proceed.");
 		size = parseInt("\nEnter the size of the picture.\n" 
 						"2 40,960 by 40,960 pictures take up 16 GB of RAM, keep that in mind.\n"
-					    "Nonetheless, limit is set to 8192*2 on both the X and Y axis.\n"
+					    "Nonetheless, limit is set to 8192 on both the X and Y axis.\n"
 						"This determines both the X and Y dimensions.\n"
 						"Bigger pictures work better with GPU acceleration." , 1, 8192 );
 		pwr = parseInt("\nEnter the power for the recurrence relationship.\n"
@@ -413,7 +413,7 @@ int main() {
 					   "For a power of 3, you get 2-fold symmetry in your guide image and 3-fold symmetry \n"
 					   "in the set you generate. Generally, you get (n-1)-fold symmetry for the guide image and \n"
 					   "n-fold symmetry in the generated sets.\n"
-					   "Lower limit is -20 and upper limit is 20.",2,20);
+					   "Lower limit is 2 and upper limit is 20.",2,20);
 		time = parseBool("\nTells you additional infomation about timing.\n"
 						 "Based on the time it takes, you can select a size runnable by your computer.\n"
 						 "Enter 0 for FALSE and 1 for TRUE, then hit ENTER to proceed.");
@@ -456,11 +456,19 @@ int main() {
 	
 	//generateImage(julia, startingPoint, size, time, useGPU, saveFile, additionalTitle, ts, pwr, uint8_t(255));
 	
-	
 	cimg_library::CImg<uint8_t> mandelbrot_img = cimg_library::CImg<uint8_t>(size, size, 1, channels, uint8_t(125));
-	generateColorImage(mandelbrot_img, thrust::complex<float>(2.0f, 2.0f), time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255),color);
 	cimg_library::CImg<uint8_t> julia_img = cimg_library::CImg<uint8_t>(size, size, 1, channels, uint8_t(125));
-	generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255),color);
+	if (color) {
+		generateColorImage(mandelbrot_img, thrust::complex<float>(2.0f, 2.0f), time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255), color);
+		generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255), color);
+	}
+	else {
+		generateImage(mandelbrot, thrust::complex<float>(2.0f, 2.0f),size, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+		generateImage(julia, startingPoint,size, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+		mandelbrot_img = cimg_library::CImg<uint8_t>(mandelbrot.linear,size,size,1,1);
+		julia_img = cimg_library::CImg<uint8_t>(julia.linear,size,size,1,1);
+
+	}
 	cimg_library::CImgDisplay mb_disp (mandelbrot_img, "Mandelbrot Fractal");
 	cimg_library::CImgDisplay jl_disp(julia_img, "Corresponding Julia Fractal");
 	mb_disp.display(mandelbrot_img).resize(1024, 1024);
@@ -497,22 +505,41 @@ int main() {
 		}
 		startingPoint = thrust::complex<float>((float(x) * 4 / (size - 1) - 2), (float(y) * 4 / (size - 1) - 2));
 		if (jl_disp.key() == cimg_library::cimg::keyENTER) {
-			//printf("Pressed ENTER \n");
-			if (animate) {
-				for (int iterations = 0; iterations < 255; iterations++) {
-					generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255),color);
+			if (color) {
+				if (animate) {
+					for (int iterations = 0; iterations < 255; iterations++) {
+						generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255), color);
+						jl_disp.display(julia_img).wait(10);
+					}
+				}
+				else {
+					generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255), color);
 					jl_disp.display(julia_img).wait(10);
 				}
 			}
 			else {
-				generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255),color);
-				jl_disp.display(julia_img).wait(10);
+				if (animate) {
+					for (int iterations = 0; iterations < 255; iterations++) {
+						deallocateContiguous2DArray(julia);
+						generateImage(julia, startingPoint, size, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+						julia_img = cimg_library::CImg<uint8_t>(julia.linear, size, size, 1, 1);
+						jl_disp.display(julia_img).wait(10);
+					}
+				}
+				else {
+					deallocateContiguous2DArray(julia);
+					generateImage(julia, startingPoint, size, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+					julia_img = cimg_library::CImg<uint8_t>(julia.linear, size, size, 1, 1);
+					jl_disp.display(julia_img).wait(10);
+				}
 			}
 		}
 		
 	}
-	//deallocateContiguous2DArray(mandelbrot);
-
+	if (!color) {
+		deallocateContiguous2DArray(mandelbrot);
+		deallocateContiguous2DArray(julia);
+	}
 	
 	std::cout << "End.\n";
 	return 0;
