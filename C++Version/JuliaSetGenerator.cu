@@ -124,9 +124,9 @@ void gpuGenerateMandelbrot(T* deviceMatrix, size_t pitch, int size_x, int size_y
 		T* row2 = row1;
 		T* row3 = row1;
 		if (color) {
-			row1 = (T*)((char*)deviceMatrix + pitch * dy + 1 * size_x * size_y);
-			row2 = (T*)((char*)deviceMatrix + pitch * dy + 0 * size_x * size_y);
-			row3 = (T*)((char*)deviceMatrix + pitch * dy + 2 * size_x * size_y);
+			row1 = (T*)((char*)deviceMatrix + pitch * dy + 1 * size_x * pitch);
+			row2 = (T*)((char*)deviceMatrix + pitch * dy + 0 * size_x * pitch);
+			row3 = (T*)((char*)deviceMatrix + pitch * dy + 2 * size_x * pitch);
 		}
 		T iterations = T(iter);
 		float x = float(dx) * 4.0f / (float(size_x) - 1.0f) - 2.0f;						// x and y are put in range [-2,2]
@@ -282,7 +282,7 @@ void generateImage(Contiguous2DArray<T> &mainBuff, thrust::complex<float> startP
 *GENERATE COLOR IMAGE*
 *********************/
 template <typename T>
-void generateColorImage(cimg_library::CImg<T>& image, thrust::complex<float> startPoint, bool time = true, bool useGPU = true, bool saveFile = false, std::string additionalTitle = "", int threadsNo = 8, int power = 2, T iterations = 255) {
+void generateColorImage(cimg_library::CImg<T>& image, thrust::complex<float> startPoint, bool time = true, bool useGPU = true, bool saveFile = false, std::string additionalTitle = "", int threadsNo = 8, int power = 2, T iterations = 255, bool color = false) {
 	uint8_t* deviceMatrix = NULL;
 	size_t devicePitch;
 	int img_w = image.width();
@@ -297,7 +297,7 @@ void generateColorImage(cimg_library::CImg<T>& image, thrust::complex<float> sta
 		dim3 threads = dim3(threadsNo, threadsNo);
 		dim3 blocks = dim3(img_w  / threads.x, img_h / threads.y);
 
-		gpuGenerateMandelbrot << <blocks, threads >> > (deviceMatrix, devicePitch, img_w, img_h , startPoint, power, iterations, true);
+		gpuGenerateMandelbrot << <blocks, threads >> > (deviceMatrix, devicePitch, img_w, img_h , startPoint, power, iterations, color);
 		gpuErrCheck(cudaDeviceSynchronize(), "Synchronization");
 		gpuErrCheck(cudaMemcpy2D(image.data(), img_w * sizeof(T), deviceMatrix, devicePitch,  img_w * sizeof(T), img_c * img_h, cudaMemcpyDeviceToHost), "Device to Host Copy");
 		gpuErrCheck(cudaFree(deviceMatrix), "Free GPU Memory");
@@ -393,17 +393,21 @@ int main() {
 	volatile bool animate = false;
 	volatile bool expertMode = false;
 	volatile bool defaultGPU = true;
-	volatile int channels = 3;
+	volatile int channels = 1;
+	volatile bool color = false;
 	expertMode = parseBool("Would you like to use expert mode?\n"
 						   "Expert mode gives you access to threads, image size, animations and more!\n"
 						   "You can also choose to run the program with the defaults (recommended for first run).\n"
 						   "Enter 0 for FALSE and 1 for TRUE, then hit ENTER to proceed.");
 	if(expertMode){
+		color = parseBool("\nEnter whether you want to use color or not.\n"
+						  "Using color means using 3 times as much memory.\n"
+						  "Enter 0 for FALSE and 1 for TRUE, then hit ENTER to proceed.");
 		size = parseInt("\nEnter the size of the picture.\n" 
 						"2 40,960 by 40,960 pictures take up 16 GB of RAM, keep that in mind.\n"
 					    "Nonetheless, limit is set to 8192*2 on both the X and Y axis.\n"
 						"This determines both the X and Y dimensions.\n"
-						"Bigger pictures work better with GPU acceleration." , 1, 8192 * 2);
+						"Bigger pictures work better with GPU acceleration." , 1, 8192 );
 		pwr = parseInt("\nEnter the power for the recurrence relationship.\n"
 					   "For a power of 2, you get the standard Mandelbrot set.\n"
 					   "For a power of 3, you get 2-fold symmetry in your guide image and 3-fold symmetry \n"
@@ -434,6 +438,10 @@ int main() {
 						   "If you don't use GPU acceleration, your CPU is used to generate the pictures.\n"
 						   "Enter 0 for FALSE and 1 for TRUE, then hit ENTER to proceed.");
 	}
+
+	if (color) {
+		channels = 3;
+	}
 	volatile int border[4] = { 0,0,size,size };
 
 	int circle_radius = int(size * RADIUS_CONSTANT);
@@ -450,9 +458,9 @@ int main() {
 	
 	
 	cimg_library::CImg<uint8_t> mandelbrot_img = cimg_library::CImg<uint8_t>(size, size, 1, channels, uint8_t(125));
-	generateColorImage(mandelbrot_img, thrust::complex<float>(2.0f, 2.0f), time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+	generateColorImage(mandelbrot_img, thrust::complex<float>(2.0f, 2.0f), time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255),color);
 	cimg_library::CImg<uint8_t> julia_img = cimg_library::CImg<uint8_t>(size, size, 1, channels, uint8_t(125));
-	generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+	generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255),color);
 	cimg_library::CImgDisplay mb_disp (mandelbrot_img, "Mandelbrot Fractal");
 	cimg_library::CImgDisplay jl_disp(julia_img, "Corresponding Julia Fractal");
 	mb_disp.display(mandelbrot_img).resize(1024, 1024);
@@ -492,12 +500,12 @@ int main() {
 			//printf("Pressed ENTER \n");
 			if (animate) {
 				for (int iterations = 0; iterations < 255; iterations++) {
-					generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+					generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255),color);
 					jl_disp.display(julia_img).wait(10);
 				}
 			}
 			else {
-				generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255));
+				generateColorImage(julia_img, startingPoint, time, useGPU, saveFile, additionalTitle, ts, abs(pwr), uint8_t(255),color);
 				jl_disp.display(julia_img).wait(10);
 			}
 		}
