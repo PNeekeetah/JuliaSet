@@ -426,9 +426,9 @@ int main() {
 			ts = parseInt("\nEnter the number of threads per dimension you want to use.\n"
 						  "The lower limit is 8, the upper limit is 16.", 8, 16);
 		}
-		animate = parseBool("\nWhether animations are used or not.\n"
-							"If you don't use your GPU, i'd strongly suggest not enabling this\n"
-							"Enter 0 for FALSE and 1 for TRUE, then hit ENTER to proceed.");
+		//animate = parseBool("\nWhether animations are used or not.\n"
+		//					"If you don't use your GPU, i'd strongly suggest not enabling this\n"
+		//					"Enter 0 for FALSE and 1 for TRUE, then hit ENTER to proceed.");
 	}
 	else {
 		std::cout << "\nYou have chosen default mode. The default image size is 512 by 512 pixels,\n"
