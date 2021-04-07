@@ -124,8 +124,8 @@ void gpuGenerateMandelbrot(T* deviceMatrix, size_t pitch, int size_x, int size_y
 		T* row2 = row1;
 		T* row3 = row1;
 		if (color) {
-			row1 = (T*)((char*)deviceMatrix + pitch * dy + 2 * size_x * pitch);
-			row2 = (T*)((char*)deviceMatrix + pitch * dy + 0 * size_x * pitch);
+			row1 = (T*)((char*)deviceMatrix + pitch * dy + 0 * size_x * pitch);
+			row2 = (T*)((char*)deviceMatrix + pitch * dy + 2 * size_x * pitch);
 			row3 = (T*)((char*)deviceMatrix + pitch * dy + 1 * size_x * pitch);
 		}
 		T iterations = T(iter);
